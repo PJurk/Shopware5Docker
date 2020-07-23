@@ -6,20 +6,17 @@ networks:
 services:
   app:
     build:
-        context: .
+        context: ./Docker/Shopware
     container_name: my-shopware5
     image: pjurk/shopware5
-    networks:
-      shopware5:
-        aliases:
-          - my-shopware5
     volumes:
-      - my-shopware5:/var/www/html
+      - ./app:/var/www/html
     ports: 
       - '80:80'
     links: 
         - db
         - mailhog
+        - elasticsearch
 
   db:
     image: mysql:5.7
@@ -58,16 +55,10 @@ services:
     ports:
       - "1025"
       - "8025:8025"
-    networks:
-      shopware5:
-        aliases:
-          - mailhog
     
 
   adminer:
     image: adminer:latest
-    networks:
-        shopware5:
     ports:
       - "8080:8080"
     links: 
@@ -75,13 +66,7 @@ services:
 
   elasticsearch:
     image: elastic/elasticsearch:7.1.1
-    networks:
-        shopware5:
-            aliases:
-                - elasticsearch
     environment:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - discovery.type=single-node
 
-volumes:
-  my-shopware5:
